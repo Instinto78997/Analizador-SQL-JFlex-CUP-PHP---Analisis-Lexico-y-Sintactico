@@ -59,6 +59,7 @@ Cadena = "'"[^'\n]*"'"
 
 %%
 
+/* Palabras reservadas SQL */
 "create"            { return symbol(sym.CREATE, yytext(), "CREATE"); }
 "table"             { return symbol(sym.TABLE, yytext(), "TABLE"); }
 "select"            { return symbol(sym.SELECT, yytext(), "SELECT"); }
@@ -69,11 +70,18 @@ Cadena = "'"[^'\n]*"'"
 "insert"            { return symbol(sym.INSERT, yytext(), "INSERT"); }
 "into"              { return symbol(sym.INTO, yytext(), "INTO"); }
 "values"            { return symbol(sym.VALUES, yytext(), "VALUES"); }
+"join"              { return symbol(sym.JOIN, yytext(), "JOIN"); }
+"on"                { return symbol(sym.ON, yytext(), "ON"); }
+"as"                { return symbol(sym.AS, yytext(), "AS"); }
 "int"               { return symbol(sym.INT, yytext(), "INT"); }
 "varchar"           { return symbol(sym.VARCHAR, yytext(), "VARCHAR"); }
-"decimal"           { return symbol(sym.DECIMAL, yytext(), "DECIMAL"); }
 "datetime"          { return symbol(sym.DATETIME, yytext(), "DATETIME"); }
+"decimal"           { return symbol(sym.DECIMAL, yytext(), "DECIMAL"); }
+"conteo"            { return symbol(sym.CONTEO, yytext(), "CONTEO"); }
+"and"               { return symbol(sym.AND, yytext(), "AND"); }
+"or"                { return symbol(sym.OR, yytext(), "OR"); }
 
+/* Operadores y simbolos */
 "("                 { return symbol(sym.LPAREN, yytext(), "("); }
 ")"                 { return symbol(sym.RPAREN, yytext(), ")"); }
 ","                 { return symbol(sym.COMMA, yytext(), ","); }

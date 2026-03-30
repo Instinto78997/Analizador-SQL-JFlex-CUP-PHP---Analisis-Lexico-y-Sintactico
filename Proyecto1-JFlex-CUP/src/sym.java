@@ -8,30 +8,36 @@ public interface sym {
   /* terminals */
   public static final int WHERE = 6;
   public static final int FROM = 5;
-  public static final int SEMICOLON = 19;
-  public static final int CADENA = 25;
+  public static final int AND = 27;
+  public static final int SEMICOLON = 23;
+  public static final int CADENA = 31;
   public static final int SELECT = 4;
-  public static final int RPAREN = 17;
-  public static final int INT = 12;
-  public static final int DATETIME = 15;
-  public static final int DECIMAL = 14;
-  public static final int LPAREN = 16;
+  public static final int OR = 28;
+  public static final int RPAREN = 21;
+  public static final int DATETIME = 18;
+  public static final int INT = 15;
+  public static final int CONTEO = 19;
+  public static final int DECIMAL = 17;
+  public static final int ON = 13;
+  public static final int AS = 14;
+  public static final int LPAREN = 20;
   public static final int TABLE = 3;
-  public static final int EQUALS = 21;
-  public static final int VARCHAR = 13;
+  public static final int EQUALS = 25;
+  public static final int VARCHAR = 16;
   public static final int CREATE = 2;
-  public static final int COMMA = 18;
+  public static final int COMMA = 22;
   public static final int INSERT = 9;
-  public static final int MULT = 20;
+  public static final int MULT = 24;
   public static final int EOF = 0;
   public static final int VALUES = 11;
   public static final int SET = 8;
-  public static final int NUMERO = 24;
-  public static final int DOT = 22;
+  public static final int NUMERO = 30;
+  public static final int DOT = 26;
   public static final int error = 1;
-  public static final int DECIMAL_VAL = 26;
-  public static final int IDENTIFICADOR = 23;
+  public static final int DECIMAL_VAL = 32;
+  public static final int IDENTIFICADOR = 29;
   public static final int UPDATE = 7;
+  public static final int JOIN = 12;
   public static final int INTO = 10;
   public static final String[] terminalNames = new String[] {
   "EOF",
@@ -46,10 +52,14 @@ public interface sym {
   "INSERT",
   "INTO",
   "VALUES",
+  "JOIN",
+  "ON",
+  "AS",
   "INT",
   "VARCHAR",
   "DECIMAL",
   "DATETIME",
+  "CONTEO",
   "LPAREN",
   "RPAREN",
   "COMMA",
@@ -57,6 +67,8 @@ public interface sym {
   "MULT",
   "EQUALS",
   "DOT",
+  "AND",
+  "OR",
   "IDENTIFICADOR",
   "NUMERO",
   "CADENA",
