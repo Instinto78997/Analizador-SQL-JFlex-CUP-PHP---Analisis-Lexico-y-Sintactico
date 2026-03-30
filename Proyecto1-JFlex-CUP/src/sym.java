@@ -8,31 +8,29 @@ public interface sym {
   /* terminals */
   public static final int WHERE = 6;
   public static final int FROM = 5;
-  public static final int AND = 16;
-  public static final int SEMICOLON = 21;
-  public static final int CADENA = 27;
+  public static final int SEMICOLON = 19;
+  public static final int CADENA = 25;
   public static final int SELECT = 4;
-  public static final int RPAREN = 19;
-  public static final int OR = 17;
+  public static final int RPAREN = 17;
   public static final int INT = 12;
   public static final int DATETIME = 15;
   public static final int DECIMAL = 14;
-  public static final int LPAREN = 18;
+  public static final int LPAREN = 16;
   public static final int TABLE = 3;
-  public static final int EQUALS = 23;
+  public static final int EQUALS = 21;
   public static final int VARCHAR = 13;
   public static final int CREATE = 2;
-  public static final int COMMA = 20;
+  public static final int COMMA = 18;
   public static final int INSERT = 9;
-  public static final int MULT = 22;
+  public static final int MULT = 20;
   public static final int EOF = 0;
   public static final int VALUES = 11;
   public static final int SET = 8;
-  public static final int NUMERO = 26;
-  public static final int DOT = 24;
+  public static final int NUMERO = 24;
+  public static final int DOT = 22;
   public static final int error = 1;
-  public static final int DECIMAL_VAL = 28;
-  public static final int IDENTIFICADOR = 25;
+  public static final int DECIMAL_VAL = 26;
+  public static final int IDENTIFICADOR = 23;
   public static final int UPDATE = 7;
   public static final int INTO = 10;
   public static final String[] terminalNames = new String[] {
@@ -52,8 +50,6 @@ public interface sym {
   "VARCHAR",
   "DECIMAL",
   "DATETIME",
-  "AND",
-  "OR",
   "LPAREN",
   "RPAREN",
   "COMMA",

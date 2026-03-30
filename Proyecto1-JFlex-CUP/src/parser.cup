@@ -6,8 +6,13 @@ parser code {:
     public void syntax_error(Symbol s){
         if(s.value instanceof Lexer.ResultadoToken) {
             Lexer.ResultadoToken r = (Lexer.ResultadoToken)s.value;
-            System.err.println("Error sintactico en Linea " + r.linea + " Columna " + r.columna);
-            r.descripcion = "ERROR SINTACTICO: " + r.lexema + " no esperado aqui";
+            // Marcar el token como error
+            r.tipo = "ERROR";
+            r.descripcion = "ERROR SINTACTICO: '" + r.lexema + "' no esperado aqui";
+            // Lanzar excepcion con la informacion del error
+            throw new RuntimeException("Error en Linea " + r.linea + " Columna " + r.columna + ": " + r.lexema);
+        } else {
+            throw new RuntimeException("Error sintactico en Linea " + (s.left+1) + " Columna " + (s.right+1));
         }
     }
     
@@ -16,33 +21,27 @@ parser code {:
             Lexer.ResultadoToken r = (Lexer.ResultadoToken)s.value;
             r.descripcion = "ERROR FATAL: " + r.lexema;
         }
+        throw new Exception("Error sintactico irrecuperable");
     }
 :};
 
 /* Terminales */
 terminal CREATE, TABLE, SELECT, FROM, WHERE, UPDATE, SET, INSERT, INTO, VALUES;
-terminal INT, VARCHAR, DECIMAL, DATETIME, AND, OR;
+terminal INT, VARCHAR, DECIMAL, DATETIME;
 terminal LPAREN, RPAREN, COMMA, SEMICOLON, MULT, EQUALS, DOT;
 terminal String IDENTIFICADOR, NUMERO, CADENA, DECIMAL_VAL;
 
 /* No terminales */
-non terminal inicio, lista_sentencias, sentencia;
+non terminal inicio, sentencia;
 non terminal create_stmt, select_stmt, update_stmt, insert_stmt;
 non terminal columna_def, lista_columnas_def, tipo_dato;
-non terminal lista_campos, condicion_where, lista_valores, valor;
-non terminal asignaciones, asignacion, condicion_simple;
-
-/* Precedencia para resolver conflictos */
-precedence left AND, OR;
-precedence nonassoc EQUALS;
+non terminal lista_campos, lista_valores, valor;
 
 start with inicio;
 
 /* Reglas de produccion */
-inicio ::= lista_sentencias;
-
-lista_sentencias ::= lista_sentencias sentencia
-                   | sentencia;
+inicio ::= sentencia
+        | inicio sentencia;
 
 sentencia ::= create_stmt SEMICOLON
             | select_stmt SEMICOLON
@@ -52,8 +51,8 @@ sentencia ::= create_stmt SEMICOLON
 /* CREATE TABLE */
 create_stmt ::= CREATE TABLE IDENTIFICADOR LPAREN lista_columnas_def RPAREN;
 
-lista_columnas_def ::= lista_columnas_def COMMA columna_def
-                     | columna_def;
+lista_columnas_def ::= columna_def
+                     | lista_columnas_def COMMA columna_def;
 
 columna_def ::= IDENTIFICADOR tipo_dato;
 
@@ -63,7 +62,7 @@ tipo_dato ::= INT
             | DECIMAL LPAREN NUMERO COMMA NUMERO RPAREN;
 
 /* SELECT */
-select_stmt ::= SELECT lista_campos FROM IDENTIFICADOR condicion_where;
+select_stmt ::= SELECT lista_campos FROM IDENTIFICADOR;
 
 lista_campos ::= MULT
                | IDENTIFICADOR
@@ -72,12 +71,7 @@ lista_campos ::= MULT
                | lista_campos COMMA IDENTIFICADOR DOT IDENTIFICADOR;
 
 /* UPDATE */
-update_stmt ::= UPDATE IDENTIFICADOR SET asignaciones condicion_where;
-
-asignaciones ::= asignacion
-               | asignaciones COMMA asignacion;
-
-asignacion ::= IDENTIFICADOR EQUALS valor;
+update_stmt ::= UPDATE IDENTIFICADOR SET IDENTIFICADOR EQUALS valor;
 
 /* INSERT */
 insert_stmt ::= INSERT INTO IDENTIFICADOR VALUES LPAREN lista_valores RPAREN;
@@ -90,11 +84,3 @@ valor ::= NUMERO
         | CADENA
         | DECIMAL_VAL
         | IDENTIFICADOR;
-
-/* WHERE condicion */
-condicion_where ::= WHERE condicion_simple
-                  | /* vacio */;
-
-condicion_simple ::= IDENTIFICADOR EQUALS valor
-                   | condicion_simple AND IDENTIFICADOR EQUALS valor
-                   | condicion_simple OR IDENTIFICADOR EQUALS valor;

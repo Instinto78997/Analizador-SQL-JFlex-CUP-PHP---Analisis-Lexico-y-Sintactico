@@ -1,5 +1,5 @@
 <?php
-// analizar.php - Recibe SQL, llama a Java y devuelve JSON
+// analizar.php - Version mejorada con manejo de errores
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -40,15 +40,19 @@ if (empty($sql)) {
 $sqlFile = $tempDir . 'input_' . uniqid() . '.sql';
 file_put_contents($sqlFile, $sql);
 
-// Usar el mismo comando que funciono en la terminal
-$currentDir = __DIR__;
-$classpath = '.' . PATH_SEPARATOR . '..\\tools\\jflex-full-1.9.1.jar' . PATH_SEPARATOR . '..\\tools\\java-cup-11b.jar';
+// Cambiar al directorio src
+$originalDir = getcwd();
+chdir(__DIR__);
 
-// Cambiar al directorio src para ejecutar el comando
-$cmd = 'cd /d "' . $currentDir . '" && java -cp "' . $classpath . '" Main ' . escapeshellarg($sqlFile) . ' 2>&1';
+// Establecer el classpath
+$classpath = '.;..\\tools\\jflex-full-1.9.1.jar;..\\tools\\java-cup-11b.jar';
 
-// Ejecutar el comando
+// Ejecutar Java
+$cmd = 'java -cp "' . $classpath . '" Main ' . escapeshellarg($sqlFile) . ' 2>&1';
 exec($cmd, $output, $returnCode);
+
+// Volver al directorio original
+chdir($originalDir);
 
 // Limpiar archivo temporal
 unlink($sqlFile);
@@ -60,11 +64,19 @@ $result = json_decode($outputStr, true);
 if ($result !== null) {
     echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 } else {
+    // Buscar errores en la salida
+    $errorMsg = $outputStr;
+    
+    // Extraer informacion del error si existe
+    if (preg_match('/Error sintactico en Linea (\d+) Columna (\d+)/', $outputStr, $matches)) {
+        $linea = $matches[1];
+        $columna = $matches[2];
+        $errorMsg = "Error sintactico en Linea $linea Columna $columna";
+    }
+    
     echo json_encode([
         'valido' => false, 
-        'mensaje' => 'Error en el analizador Java',
-        'debug' => $outputStr,
-        'cmd' => $cmd,
+        'mensaje' => $errorMsg,
         'tokens' => []
     ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 }

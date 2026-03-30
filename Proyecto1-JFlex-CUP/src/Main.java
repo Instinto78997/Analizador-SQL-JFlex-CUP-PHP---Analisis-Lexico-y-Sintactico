@@ -32,12 +32,10 @@ public class Main {
     }
     
     private static String analizarSQL(String codigo) {
+        StringBuilder json = new StringBuilder();
         try {
             Lexer lexer = new Lexer(new StringReader(codigo));
             parser p = new parser(lexer);
-            
-            // Crear objeto para respuesta JSON manual
-            StringBuilder json = new StringBuilder();
             
             try {
                 p.parse();
@@ -68,11 +66,33 @@ public class Main {
             } catch (Exception e) {
                 List<Lexer.ResultadoToken> tokens = lexer.getResultados();
                 
+                // Obtener el ultimo token procesado
+                Lexer.ResultadoToken lastToken = null;
+                int errorLinea = 1;
+                int errorColumna = 1;
+                String errorToken = "";
+                
+                if (!tokens.isEmpty()) {
+                    lastToken = tokens.get(tokens.size() - 1);
+                    errorLinea = lastToken.linea;
+                    errorColumna = lastToken.columna;
+                    errorToken = lastToken.lexema;
+                }
+                
+                // Extraer mensaje de error de CUP
+                String errorMensaje = e.getMessage();
+                if (errorMensaje == null || errorMensaje.isEmpty()) {
+                    errorMensaje = "Error de sintaxis";
+                }
+                
                 json.append("{\n");
                 json.append("  \"valido\": false,\n");
-                json.append("  \"mensaje\": \"Error sintactico: ").append(escapeJSON(e.getMessage())).append("\",\n");
+                json.append("  \"mensaje\": \"Error sintactico en Linea ").append(errorLinea);
+                json.append(" Columna ").append(errorColumna).append(": '").append(escapeJSON(errorToken));
+                json.append("' no esperado\",\n");
                 json.append("  \"tokens\": [\n");
                 
+                // Agregar todos los tokens validos antes del error
                 for (int i = 0; i < tokens.size(); i++) {
                     Lexer.ResultadoToken t = tokens.get(i);
                     json.append("    {");
@@ -87,21 +107,34 @@ public class Main {
                     json.append("\n");
                 }
                 
+                // Agregar el token que causo el error como ERROR
+                if (!tokens.isEmpty()) {
+                    if (tokens.size() > 0) json.append(",");
+                    json.append("\n");
+                }
+                
+                json.append("    {");
+                json.append("\"no\":").append(tokens.size() + 1).append(",");
+                json.append("\"linea\":").append(errorLinea).append(",");
+                json.append("\"columna\":").append(errorColumna).append(",");
+                json.append("\"lexema\":\"").append(escapeJSON(errorToken)).append("\",");
+                json.append("\"tipo\":\"ERROR\",");
+                json.append("\"descripcion\":\"ERROR SINTACTICO: '").append(escapeJSON(errorToken)).append("' no esperado aqui\"");
+                json.append("}\n");
+                
                 json.append("  ]\n");
                 json.append("}");
             }
             
-            return json.toString();
-            
         } catch (Exception e) {
-            StringBuilder json = new StringBuilder();
             json.append("{\n");
             json.append("  \"valido\": false,\n");
             json.append("  \"mensaje\": \"Error al analizar: ").append(escapeJSON(e.getMessage())).append("\",\n");
             json.append("  \"tokens\": []\n");
             json.append("}");
-            return json.toString();
         }
+        
+        return json.toString();
     }
     
     private static String escapeJSON(String s) {
