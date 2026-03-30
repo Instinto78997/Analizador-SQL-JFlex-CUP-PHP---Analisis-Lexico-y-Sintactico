@@ -1,0 +1,100 @@
+import java_cup.runtime.*;
+import java.util.List;
+import java.util.ArrayList;
+
+parser code {:
+    public void syntax_error(Symbol s){
+        if(s.value instanceof Lexer.ResultadoToken) {
+            Lexer.ResultadoToken r = (Lexer.ResultadoToken)s.value;
+            System.err.println("Error sintactico en Linea " + r.linea + " Columna " + r.columna);
+            r.descripcion = "ERROR SINTACTICO: " + r.lexema + " no esperado aqui";
+        }
+    }
+    
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+        if(s.value instanceof Lexer.ResultadoToken) {
+            Lexer.ResultadoToken r = (Lexer.ResultadoToken)s.value;
+            r.descripcion = "ERROR FATAL: " + r.lexema;
+        }
+    }
+:};
+
+/* Terminales */
+terminal CREATE, TABLE, SELECT, FROM, WHERE, UPDATE, SET, INSERT, INTO, VALUES;
+terminal INT, VARCHAR, DECIMAL, DATETIME, AND, OR;
+terminal LPAREN, RPAREN, COMMA, SEMICOLON, MULT, EQUALS, DOT;
+terminal String IDENTIFICADOR, NUMERO, CADENA, DECIMAL_VAL;
+
+/* No terminales */
+non terminal inicio, lista_sentencias, sentencia;
+non terminal create_stmt, select_stmt, update_stmt, insert_stmt;
+non terminal columna_def, lista_columnas_def, tipo_dato;
+non terminal lista_campos, condicion_where, lista_valores, valor;
+non terminal asignaciones, asignacion, condicion_simple;
+
+/* Precedencia para resolver conflictos */
+precedence left AND, OR;
+precedence nonassoc EQUALS;
+
+start with inicio;
+
+/* Reglas de produccion */
+inicio ::= lista_sentencias;
+
+lista_sentencias ::= lista_sentencias sentencia
+                   | sentencia;
+
+sentencia ::= create_stmt SEMICOLON
+            | select_stmt SEMICOLON
+            | update_stmt SEMICOLON
+            | insert_stmt SEMICOLON;
+
+/* CREATE TABLE */
+create_stmt ::= CREATE TABLE IDENTIFICADOR LPAREN lista_columnas_def RPAREN;
+
+lista_columnas_def ::= lista_columnas_def COMMA columna_def
+                     | columna_def;
+
+columna_def ::= IDENTIFICADOR tipo_dato;
+
+tipo_dato ::= INT
+            | VARCHAR LPAREN NUMERO RPAREN
+            | DATETIME
+            | DECIMAL LPAREN NUMERO COMMA NUMERO RPAREN;
+
+/* SELECT */
+select_stmt ::= SELECT lista_campos FROM IDENTIFICADOR condicion_where;
+
+lista_campos ::= MULT
+               | IDENTIFICADOR
+               | IDENTIFICADOR DOT IDENTIFICADOR
+               | lista_campos COMMA IDENTIFICADOR
+               | lista_campos COMMA IDENTIFICADOR DOT IDENTIFICADOR;
+
+/* UPDATE */
+update_stmt ::= UPDATE IDENTIFICADOR SET asignaciones condicion_where;
+
+asignaciones ::= asignacion
+               | asignaciones COMMA asignacion;
+
+asignacion ::= IDENTIFICADOR EQUALS valor;
+
+/* INSERT */
+insert_stmt ::= INSERT INTO IDENTIFICADOR VALUES LPAREN lista_valores RPAREN;
+
+lista_valores ::= valor
+                | lista_valores COMMA valor;
+
+/* Valores */
+valor ::= NUMERO
+        | CADENA
+        | DECIMAL_VAL
+        | IDENTIFICADOR;
+
+/* WHERE condicion */
+condicion_where ::= WHERE condicion_simple
+                  | /* vacio */;
+
+condicion_simple ::= IDENTIFICADOR EQUALS valor
+                   | condicion_simple AND IDENTIFICADOR EQUALS valor
+                   | condicion_simple OR IDENTIFICADOR EQUALS valor;

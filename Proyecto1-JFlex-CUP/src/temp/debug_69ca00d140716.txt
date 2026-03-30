@@ -1,0 +1,6 @@
+Comando: java -cp "C:\Users\Henry Menendez\Downloads\Proyecto1-JFlex-CUP\src;C:\Users\Henry Menendez\Downloads\Proyecto1-JFlex-CUP\src/tools/jflex-full-1.9.1.jar;C:\Users\Henry Menendez\Downloads\Proyecto1-JFlex-CUP\src/tools/java-cup-11b.jar" Main "C:\Users\Henry Menendez\Downloads\Proyecto1-JFlex-CUP\src/temp/input_69ca00d140546.sql" 2>&1
+
+Return Code: 1
+Output:
+Error: Unable to initialize main class Main
+Caused by: java.lang.NoClassDefFoundError: java_cup/runtime/Scanner
